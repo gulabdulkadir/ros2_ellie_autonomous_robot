@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!-- Boyut ve ağırlık parametreleri -->
+    <xacro:property name="laser_radius" value="0.035"/>
+    <xacro:property name="laser_height" value="0.04"/>
+    <xacro:property name="laser_mass" value="0.1"/>
+
+    <!-- Sensörün fiziksek link gövdesi -->
+    <link name="laser_frame">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="${laser_radius}" length="${laser_height}"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+        <xacro:cylinder_inertia m="${laser_mass}" r="${laser_radius}" h="${laser_height}" xyz="0 0 0" rpy="0 0 0"/>
+    </link>
+
+    <!-- 2. Şasiye Bağlantı Sabit Eklemi -->
+    <joint name="base_to_laser" type="fixed">
+        <parent link="base_link"/>
+        <child link="laser_frame"/>
+        <origin xyz="0.05 0 ${base_height + laser_height / 2.0}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- 3. Gazebo Ray (Lazer) Sensörü ve ROS 2 Yayıncı Eklentisi -->
+    <gazebo reference="laser_frame">
+        <material>Gazebo/Red</material>
+        <sensor name="laser" type="ray">    
+            <pose>0 0 0 0 0 0</pose>
+            <!-- Gazebo Sahnesinde Mavi Işınları Görselleştir -->
+            <visualize>true</visualize>
+            <!-- Saniyede 10 Tarama -->
+            <update_rate>10</update_rate>
+            <ray>
+                <scan>
+                    <horizontal>
+                        <!-- 360 derecede her derece için bir ölçüm toplam 360 ışın olmalı-->
+                        <samples>360</samples>
+                        <resolution>1</resolution>
+                        <min_angle>-3.14159</min_angle>
+                        <max_angle>3.14159</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <!-- Min 15 cm max 10 metre menzil-->
+                    <min>0.15</min>
+                    <max>10.0</max>
+                    <resolution>0.01</resolution>
+                </range>
+            </ray>
+
+            <plugin name="laser_controller" filename="libgazebo_ros_ray_sensor.so">
+                <ros>
+                    <!-- Eklentinin varsayılan ~/out konusunu standart /scan konusuna yönlendirir -->
+                    <remapping>~/out:=scan</remapping>
+                </ros>
+                <output_type>sensor_msgs/LaserScan</output_type>
+                <frame_name>laser_frame</frame_name>
+            </plugin>
+        </sensor>
+    </gazebo>
+</robot>

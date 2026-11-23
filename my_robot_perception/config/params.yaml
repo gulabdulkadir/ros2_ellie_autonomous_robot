@@ -1,0 +1,6 @@
+motor_control_node:
+  ros__parameters:
+    kp: 0.005
+    linear_speed: 0.25
+    search_angular_speed: 0.45
+    stop_distance: 0.45

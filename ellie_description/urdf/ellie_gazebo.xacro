@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!-- 1. Gazebo Görsel Renkleri -->
+    <gazebo reference="base_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <gazebo reference="left_wheel_link">
+        <material>Gazebo/DarkGrey</material>
+        <mu1>1.0</mu1>
+        <mu2>1.0</mu2>
+    </gazebo>
+
+    <gazebo reference="right_wheel_link">
+        <material>Gazebo/DarkGrey</material>
+        <mu1>1.0</mu1>
+        <mu2>1.0</mu2>
+    </gazebo>
+
+    <!-- 2. Sarhoş Tekerlek Sürtünmesiz Kayma Ayarı -->
+    <gazebo reference="caster_wheel_link">
+        <material>Gazebo/DarkGrey</material>
+        <mu1>0.001</mu1>
+        <mu2>0.001</mu2>
+    </gazebo>
+
+    <!-- 3. Diferansiyel Sürüş Motor ve Odometri Eklentisi -->
+    <gazebo>
+        <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+
+            <!-- Eklem İsimleri (ellie.urdf.xacro ile birebir aynı olmalı) -->
+            <left_joint>base_to_left_wheel</left_joint>
+            <right_joint>base_to_right_wheel</right_joint>
+
+            <!-- Kinematik Ölçüler (Xacro değişkenlerinden otomatik gelir) -->
+            <wheel_separation>${base_width + wheel_length}</wheel_separation>
+            <wheel_diameter>${2 * wheel_radius}</wheel_diameter>
+
+            <!-- Motor Tork ve İvme Limitleri -->
+            <max_wheel_torque>20</max_wheel_torque>
+            <max_wheel_acceleration>1.0</max_wheel_acceleration>
+
+            <!-- Odometri ve TF Yayın Ayarları -->
+            <publish_odom>true</publish_odom>
+            <publish_odom_tf>true</publish_odom_tf>
+            <publish_wheel_tf>true</publish_wheel_tf>
+
+            <odometry_frame>odom</odometry_frame>
+            <robot_base_frame>base_link</robot_base_frame>
+
+        </plugin>
+    </gazebo>
+
+</robot>
